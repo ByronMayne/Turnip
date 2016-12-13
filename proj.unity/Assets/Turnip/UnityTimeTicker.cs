@@ -77,7 +77,7 @@ public class UnityTimeTicker : MonoBehaviour, ITickRunner
         if(m_HasTickable)
         {
             // Only update if we have a tickable.
-            m_Tickable.Tick(Time.deltaTime);
+            m_Tickable.Tick(Time.deltaTime, Time.unscaledDeltaTime);
         }
     }
 

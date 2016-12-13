@@ -13,6 +13,7 @@ namespace TurnipTimers
         private bool m_IsExpired;
         private bool m_IsPaused;
         private int m_ID;
+        private bool m_UseScaledTime = true;
         private bool m_AutoRecycle = true;
         private static int m_NextID;
 
@@ -38,6 +39,17 @@ namespace TurnipTimers
             {
                 m_Length = value;
             }
+        }
+
+        /// <summary>
+        /// If true we update this timer with <see cref="Time.unscaledDeltaTime"/> otherwise
+        /// we update with <see cref="Time.deltaTime"/>
+        /// </summary>
+        public bool useUnscaledTime
+        {
+            get { return m_UseScaledTime; }
+            set { m_UseScaledTime = value; }
+
         }
 
         /// <summary>
@@ -165,16 +177,17 @@ namespace TurnipTimers
             Reset();
         }
 
-        void ITickable.Tick(double delta)
+        void ITickable.Tick(double delta, double unscaledDelta)
         {
             if (!m_IsExpired && !m_IsPaused)
             {
+                double trueDelta = m_UseScaledTime ? delta : unscaledDelta;
                 if (m_TimeRemaning > 0)
                 {
-                    m_TimeRemaning -= delta;
+                    m_TimeRemaning -= trueDelta;
                     if(m_OnTicked != null)
                     {
-                        m_OnTicked(delta);
+                        m_OnTicked(trueDelta);
                     }
                 }
                 else

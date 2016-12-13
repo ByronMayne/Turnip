@@ -18,6 +18,8 @@ namespace TurnipTimers
 
         bool isAvaiableForRecycle { get; }
 
+        bool useUnscaledTime { get; set; }
+
         void Reset();
     }
 }

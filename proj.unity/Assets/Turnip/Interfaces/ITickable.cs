@@ -11,7 +11,7 @@ namespace TurnipTimers
     {
         void OnDisabled();
 
-        void Tick(double delta);
+        void Tick(double delta, double unscaleDelta);
 
         void OnEnabled();
     }

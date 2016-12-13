@@ -140,11 +140,11 @@ namespace TurnipTimers
         /// Invoked every frame by our ITickRunner.
         /// </summary>
         /// <param name="delta">The delta time for our tick</param>
-        void ITickable.Tick(double delta)
+        void ITickable.Tick(double delta, double unscaledDelta)
         {
             foreach (ITimer timer in m_Timers)
             {
-                timer.Tick(delta);
+                timer.Tick(delta, unscaledDelta);
             }
 
             // Since users can add new timers on the callbacks from other timers
