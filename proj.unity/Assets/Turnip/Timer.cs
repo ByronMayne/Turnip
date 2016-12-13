@@ -9,8 +9,11 @@ namespace TurnipTimers
         private double m_Length;
         private double m_TimeRemaning;
         private Action m_OnTimerExpired;
+        private Action<double> m_OnTicked;
         private bool m_IsExpired;
+        private bool m_IsPaused;
         private int m_ID;
+        private bool m_AutoRecycle = true;
         private static int m_NextID;
 
 
@@ -38,22 +41,45 @@ namespace TurnipTimers
         }
 
         /// <summary>
+        /// Returns if this timer is available for recycle.
+        /// </summary>
+        bool ITimer.isAvaiableForRecycle
+        {
+            get { return m_IsExpired && m_AutoRecycle; }
+        }
+
+        /// <summary>
         /// Gets or sets the delegate for when this timer has completed.
         /// </summary>
-        Action ITimer.OnTimerExpired
+        public event Action OnTimerExpired
         {
-            get
+            add
             {
-                return m_OnTimerExpired;
+                m_OnTimerExpired += value;
             }
 
-            set
+            remove
             {
-                m_OnTimerExpired = value;
+                m_OnTimerExpired -= value;
             }
         }
 
-        public int ID
+        /// <summary>
+        /// Invoked whenever this timer has ticked in it's update loop
+        /// </summary>
+        public event Action<double> OnTimerTicked
+        {
+            add
+            {
+                m_OnTicked += value;
+            }
+            remove
+            {
+                m_OnTicked -= value;
+            }
+        }
+
+        int ITimer.ID
         {
             get { return m_ID; }
         }
@@ -62,39 +88,94 @@ namespace TurnipTimers
         {
             get { return m_IsExpired; }
         }
+
+        /// <summary>
+        /// By default the timer will be reused after it has expired. If this
+        /// is set to false the timer will never be recycled by Turnip. This is useful
+        /// if you just want to keep using the same timer over and over again.
+        /// </summary>
+        public bool autoRecycle
+        {
+            get
+            {
+                return m_AutoRecycle;
+            }
+
+            set
+            {
+                m_AutoRecycle = value;
+            }
+        }
+
+        /// <summary>
+        /// Get's the progress of the timer. 
+        /// <value>(m_Length - m_TimeRemaning) % m_Length</value>
+        /// </summary>
+        public double progress
+        {
+            get { return (m_Length - m_TimeRemaning) % m_Length; }
+        }
+
+        public void Pause()
+        {
+            m_IsPaused = true;
+        }
+
+        public void Start()
+        {
+            m_IsPaused = false;
+        }
         #endregion
 
-        public Timer(double lengthInSeconds, Action onTimerExpired)
+        public Timer()
         {
-            m_Length = lengthInSeconds;
             m_TimeRemaning = m_Length;
-            m_OnTimerExpired = onTimerExpired;
             m_IsExpired = false;
+            m_IsPaused = true;
             m_ID = m_NextID;
             m_NextID++;
         }
 
-        public void OnDisabled()
+        void ITickable.OnDisabled()
         {
         }
 
-        public void OnEnabled()
+        void ITickable.OnEnabled()
         {
         }
 
+        /// <summary>
+        /// Resets the timer to the default length in seconds. Does not effect
+        /// the paused state.
+        /// </summary>
         public void Reset()
         {
             m_TimeRemaning = m_Length;
             m_IsExpired = false;
         }
 
-        public void Tick(double delta)
+        /// <summary>
+        /// Resets our timer and changes it's length to a new value. Reset does not
+        /// change the paused state. 
+        /// </summary>
+        /// <param name="lengthInSeconds"></param>
+        public void SetLength(float lengthInSeconds)
         {
-            if (!m_IsExpired)
+            m_Length = lengthInSeconds;
+            Reset();
+        }
+
+        void ITickable.Tick(double delta)
+        {
+            if (!m_IsExpired && !m_IsPaused)
             {
                 if (m_TimeRemaning > 0)
                 {
                     m_TimeRemaning -= delta;
+                    if(m_OnTicked != null)
+                    {
+                        m_OnTicked(delta);
+                    }
                 }
                 else
                 {

@@ -8,11 +8,15 @@ namespace TurnipTimers
     {
         double Length { get; set; }
 
-        Action OnTimerExpired { get; set; }
+        event Action OnTimerExpired;
+
+        event Action<double> OnTimerTicked;
 
         int ID { get; }
 
         bool isExpired { get; }
+
+        bool isAvaiableForRecycle { get; }
 
         void Reset();
     }

@@ -89,23 +89,20 @@ namespace TurnipTimers
         /// <param name="lengthInSeconds">How many seconds should the timer count down for?</param>
         /// <param name="onTimerComplete">When the timer is complete this will be invoked.</param>
         /// <returns>The newly created timer or a reused expired one.</returns>
-        public static Timer CreateTimer(float lengthInSeconds, Action onTimerComplete)
+        public static Timer CreateTimer()
         {
             ITimer timer = null;
 
             if(m_Instance.TryToRecycleTimer(ref timer))
             {
-                // We are reusing so we just reset the length
-                timer.Length = lengthInSeconds;
                 // This resets it's expired state and it's time remaining.
                 timer.Reset();
                 // And resets it's callbacks. 
-                timer.OnTimerExpired = onTimerComplete;
             }
             else
             {
                 // create a new one
-                timer = new Timer(lengthInSeconds, onTimerComplete);
+                timer = new Timer();
                 // Add it to our pending queue.
                 m_Instance.m_PendingTimers.Add(timer);
             }
@@ -113,11 +110,16 @@ namespace TurnipTimers
             return timer as Timer;
         }
 
+        public static Timer CreateRepeatingTimer(float startIn, float repeatSeperation, int maxRepeatCount)
+        {
+            return null;
+        }
+
         private bool TryToRecycleTimer(ref ITimer timerToRecycle)
         {
             foreach(ITimer timer in m_Timers)
             {
-                if(timer.isExpired)
+                if(timer.isAvaiableForRecycle)
                 {
                     timerToRecycle = timer;
                     return true;
