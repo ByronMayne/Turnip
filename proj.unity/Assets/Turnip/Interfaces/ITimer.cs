@@ -1,25 +1,26 @@
-﻿using UnityEngine;
-using System.Collections;
+﻿using System.Collections;
 using System;
+using UnityEngine;
 
 namespace TurnipTimers
 {
     public interface ITimer : ITickable
     {
-        double Length { get; set; }
+        // Events
+        event TimerExpiredDelegate OnTimerExpired;
+        event TickDelegate OnTimerTicked;
 
-        event Action OnTimerExpired;
-
-        event Action<double> OnTimerTicked;
-
+        // Properties 
         int ID { get; }
-
-        bool isExpired { get; }
-
         bool isAvaiableForRecycle { get; }
-
+        bool isExpired { get; }
+        double Length { get; set; }
         bool useUnscaledTime { get; set; }
+        bool autoRecycle { get; set; }
 
+        void ReassignTimer();
+
+        // Functions
         void Reset();
     }
 }

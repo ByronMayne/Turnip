@@ -335,7 +335,7 @@ PlayerSettings:
   psp2InfoBarColor: 0
   psp2UseDebugIl2cppLibs: 0
   psmSplashimage: {fileID: 0}
-  spritePackerPolicy: 
+  spritePackerPolicy: TightRotateEnabledSpritePackerPolicy
   scriptingDefineSymbols: {}
   metroPackageName: proj.unity
   metroPackageVersion: 
@@ -405,9 +405,7 @@ PlayerSettings:
   XboxOnePersistentLocalStorageSize: 0
   intPropertyNames:
   - Standalone::ScriptingBackend
-  - WebPlayer::ScriptingBackend
   Standalone::ScriptingBackend: 0
-  WebPlayer::ScriptingBackend: 0
   boolPropertyNames:
   - Android::VR::enable
   - Metro::VR::enable
@@ -424,7 +422,6 @@ PlayerSettings:
   - WiiU::VR::enable
   - Xbox360::VR::enable
   - XboxOne::VR::enable
-  - XboxOne::enus
   - iOS::VR::enable
   - tvOS::VR::enable
   Android::VR::enable: 0
@@ -442,7 +439,6 @@ PlayerSettings:
   WiiU::VR::enable: 0
   Xbox360::VR::enable: 0
   XboxOne::VR::enable: 0
-  XboxOne::enus: 1
   iOS::VR::enable: 0
   tvOS::VR::enable: 0
   stringPropertyNames:
@@ -462,7 +458,7 @@ PlayerSettings:
   Game_Performance_ServiceEnabled::Game_Performance_ServiceEnabled: False
   Hub_ServiceEnabled::Hub_ServiceEnabled: False
   Purchasing_ServiceEnabled::Purchasing_ServiceEnabled: False
-  UNet_ServiceEnabled::UNet_ServiceEnabled: True
+  UNet_ServiceEnabled::UNet_ServiceEnabled: False
   Unity_Ads_ServiceEnabled::Unity_Ads_ServiceEnabled: False
   vectorPropertyNames:
   - Android::VR::enabledDevices

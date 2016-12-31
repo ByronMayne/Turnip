@@ -5,19 +5,6 @@ using System.Collections.Generic;
 
 namespace TurnipTimers
 {
-    public class ITimerEqualityComparer : IEqualityComparer<ITimer>
-    {
-        public bool Equals(ITimer x, ITimer y)
-        {
-            return x.ID == y.ID;
-        }
-
-        public int GetHashCode(ITimer obj)
-        {
-            return obj.ID;
-        }
-    }
-
     public class Turnip : ITickable
     {
         // Our current instance
@@ -27,8 +14,10 @@ namespace TurnipTimers
         // The current time scale that we are using
         private float m_TimeScale = TimeConstants.DEFAULT_TIME_SCALE;
         // Timers
-        private HashSet<ITimer> m_Timers = new HashSet<ITimer>(new ITimerEqualityComparer());
-        private HashSet<ITimer> m_PendingTimers = new HashSet<ITimer>();
+        private HashSet<ITimer> m_ActiveTimers = new HashSet<ITimer>();
+        private HashSet<ITimer> m_NewTimers = new HashSet<ITimer>();
+        private Queue<WeakReference> m_UserManagedTimers = new Queue<WeakReference>(); 
+
 
         /// <summary>
         /// Gets the current instance of the Timepiece or creates a new one. 
@@ -64,6 +53,12 @@ namespace TurnipTimers
             }
         }
 
+        private Turnip()
+        {
+            m_ActiveTimers        = new HashSet<ITimer>();
+            m_NewTimers = new HashSet<ITimer>();
+        }
+
         /// <summary>
         /// Initializes the timepiece with the runner who does all it's update functions.
         /// </summary>
@@ -96,7 +91,7 @@ namespace TurnipTimers
             if(m_Instance.TryToRecycleTimer(ref timer))
             {
                 // This resets it's expired state and it's time remaining.
-                timer.Reset();
+                timer.ReassignTimer();
                 // And resets it's callbacks. 
             }
             else
@@ -104,20 +99,16 @@ namespace TurnipTimers
                 // create a new one
                 timer = new Timer();
                 // Add it to our pending queue.
-                m_Instance.m_PendingTimers.Add(timer);
+                m_Instance.m_NewTimers.Add(timer);
+
             }
 
             return timer as Timer;
         }
 
-        public static Timer CreateRepeatingTimer(float startIn, float repeatSeperation, int maxRepeatCount)
-        {
-            return null;
-        }
-
         private bool TryToRecycleTimer(ref ITimer timerToRecycle)
         {
-            foreach(ITimer timer in m_Timers)
+            foreach(ITimer timer in m_ActiveTimers)
             {
                 if(timer.isAvaiableForRecycle)
                 {
@@ -142,17 +133,27 @@ namespace TurnipTimers
         /// <param name="delta">The delta time for our tick</param>
         void ITickable.Tick(double delta, double unscaledDelta)
         {
-            foreach (ITimer timer in m_Timers)
+            delta *= m_TimeScale;
+            ITimer unmanagedTimerPendingRemoval = null;
+
+            foreach (ITimer timer in m_ActiveTimers)
             {
                 timer.Tick(delta, unscaledDelta);
+
+                if(timer.isExpired && timer.autoRecycle)
+                {
+                    // We only remove one each frame. 
+                    unmanagedTimerPendingRemoval = timer;
+                }
             }
+
 
             // Since users can add new timers on the callbacks from other timers
             // we have to delay adding or our hashset will throw an error.
-            if(m_PendingTimers.Count > 0)
+            if(m_NewTimers.Count > 0)
             {
-                m_Timers.UnionWith(m_PendingTimers);
-                m_PendingTimers.Clear();
+                m_ActiveTimers.UnionWith(m_NewTimers);
+                m_NewTimers.Clear();
             }
         }
 

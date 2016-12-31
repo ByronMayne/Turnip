@@ -6,16 +6,16 @@ namespace TurnipTimers
 {
     public class Timer : ITimer
     {
+        private static int m_NextID;
         private double m_Length;
-        private double m_TimeRemaning;
-        private Action m_OnTimerExpired;
-        private Action<double> m_OnTicked;
+        private double m_TimeRemaining;
+        private TimerExpiredDelegate m_OnTimerExpired;
+        private TickDelegate m_OnTicked;
         private bool m_IsExpired;
         private bool m_IsPaused;
-        private int m_ID;
+        private int m_HashID;
         private bool m_UseScaledTime = true;
         private bool m_AutoRecycle = true;
-        private static int m_NextID;
 
 
         #region -= ITimer Interface =-
@@ -63,7 +63,7 @@ namespace TurnipTimers
         /// <summary>
         /// Gets or sets the delegate for when this timer has completed.
         /// </summary>
-        public event Action OnTimerExpired
+        public event TimerExpiredDelegate OnTimerExpired
         {
             add
             {
@@ -79,7 +79,7 @@ namespace TurnipTimers
         /// <summary>
         /// Invoked whenever this timer has ticked in it's update loop
         /// </summary>
-        public event Action<double> OnTimerTicked
+        public event TickDelegate OnTimerTicked
         {
             add
             {
@@ -93,7 +93,7 @@ namespace TurnipTimers
 
         int ITimer.ID
         {
-            get { return m_ID; }
+            get { return m_HashID; }
         }
 
         public bool isExpired
@@ -125,7 +125,15 @@ namespace TurnipTimers
         /// </summary>
         public double progress
         {
-            get { return (m_Length - m_TimeRemaning) % m_Length; }
+            get { return (m_Length - m_TimeRemaining) / m_Length; }
+        }
+
+        /// <summary>
+        /// Returns the number of seconds remaining for our timer. This takes into account of it has to loop. 
+        /// </summary>
+        public double timeRemaining
+        {
+            get { return m_TimeRemaining; }
         }
 
         public void Pause()
@@ -141,10 +149,10 @@ namespace TurnipTimers
 
         public Timer()
         {
-            m_TimeRemaning = m_Length;
+            m_TimeRemaining = m_Length;
             m_IsExpired = false;
             m_IsPaused = true;
-            m_ID = m_NextID;
+            m_HashID = m_NextID;
             m_NextID++;
         }
 
@@ -162,8 +170,13 @@ namespace TurnipTimers
         /// </summary>
         public void Reset()
         {
-            m_TimeRemaning = m_Length;
+            m_TimeRemaining = m_Length;
             m_IsExpired = false;
+        }
+
+        void ITimer.ReassignTimer()
+        {
+            Reset();
         }
 
         /// <summary>
@@ -182,28 +195,28 @@ namespace TurnipTimers
             if (!m_IsExpired && !m_IsPaused)
             {
                 double trueDelta = m_UseScaledTime ? delta : unscaledDelta;
-                if (m_TimeRemaning > 0)
+                if (m_TimeRemaining > 0)
                 {
-                    m_TimeRemaning -= trueDelta;
-                    if(m_OnTicked != null)
+                    m_TimeRemaining -= trueDelta;
+                    if (m_OnTicked != null)
                     {
                         m_OnTicked(trueDelta);
                     }
                 }
                 else
                 {
-                    m_IsExpired = true;
                     if (m_OnTimerExpired != null)
                     {
                         m_OnTimerExpired();
                     }
+                    m_IsExpired = true;
                 }
             }
         }
 
         public override int GetHashCode()
         {
-            return m_ID;
+            return m_HashID;
         }
     }
 }

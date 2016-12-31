@@ -53,7 +53,7 @@ public class UnityTimeTicker : MonoBehaviour, ITickRunner
         // Create a new game object with a good name
         GameObject goTicker = new GameObject("Turnip: Time Ticker");
         // Add our time component
-        UnityTimeTicker ticker = goTicker.AddComponent<UnityTimeTicker>();
+        goTicker.AddComponent<UnityTimeTicker>();
     }
 
     /// <summary>
@@ -62,7 +62,7 @@ public class UnityTimeTicker : MonoBehaviour, ITickRunner
     private void Awake()
     {
         // Stop the ticker from being seen.
-        //hideFlags = HideFlags.HideInHierarchy | HideFlags.HideInInspector;
+        hideFlags = HideFlags.HideInHierarchy | HideFlags.HideInInspector;
         // Stop it from being destroyed. 
         DontDestroyOnLoad(gameObject);
         // Initialize our timepiece
