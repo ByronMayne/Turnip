@@ -75,7 +75,7 @@ For this bit of code we created a reference to our timer since we want to be abl
 
 >  * Turnip uses a pool of timers internally so it does not always create new ones it might just recycle and old one. 
  
- ### META
+### META
 
 Developed by Byron Mayne [[twitter](https://twitter.com/byMayne) &bull; [github](https://github.com/ByronMayne)]
 
