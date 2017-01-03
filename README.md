@@ -74,7 +74,8 @@ public class KitchenOven
 For this bit of code we created a reference to our timer since we want to be able to stop and start it. We also have two new functions for the when the oven is opened and when it's closed. To pause our timer you call ```Timer.Pause()``` and to resume/start our timer you call ```Timer.Start()```. As soon as the timer is paused it never gets update events and is frozen in time. 
 
 >  * Turnip uses a pool of timers internally so it does not always create new ones it might just recycle and old one. 
-  ### META
+ 
+ ### META
 
 Developed by Byron Mayne [[twitter](https://twitter.com/byMayne) &bull; [github](https://github.com/ByronMayne)]
 
